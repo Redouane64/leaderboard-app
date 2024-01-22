@@ -14,12 +14,13 @@ export class ScoreService {
   ) {}
 
   async createScore(data: UserScore, user: User): Promise<void> {
+    // check if user is not an admin and is updating other player score
     if (!user.roles.includes('admin') && user.name !== data.name) {
-      throw new BadRequestException('You cannot add score to other players.')
+      throw new BadRequestException('You cannot set other players score.')
     }
 
-    const entity = await this.repository.update({
-      id: user.id
+    await this.repository.update({
+      name: data.name
     }, {
       score: data.score,
     })

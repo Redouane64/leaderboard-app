@@ -13,7 +13,7 @@ import { ScoreService } from './score.service';
 import { CreateScoreDto, LeaderboardResponse } from './dtos';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { CurrentUser } from './decorators';
-import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/auth/interfaces';
 
 @ApiTags('Scores')
@@ -22,6 +22,8 @@ export class ScoreController {
   constructor(private readonly scoreService: ScoreService) {}
 
   @Post()
+  @ApiOperation({operationId: 'addScore', summary: `Add score`})
+  @ApiBadRequestResponse({description: `No-admin adds score to wrong player` })
   @UseGuards(AuthGuard)
   async scores(@Body() data: CreateScoreDto, @CurrentUser() user: User, @Res() response: Response) {
     await this.scoreService.createScore(data, user);
@@ -29,6 +31,7 @@ export class ScoreController {
   }
 
   @Get('leaderboard')
+  @ApiOperation({operationId: 'leaderboard', summary: `Get top 10 players`})
   @ApiOkResponse({ type: LeaderboardResponse })
   async leaderboard(@Res() response: Response) {
     const leaderboard = await this.scoreService.getLeaderboard();
