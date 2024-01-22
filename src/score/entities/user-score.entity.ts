@@ -1,5 +1,11 @@
 import { UserEntity } from 'src/auth/entities/user.entity';
-import { Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity({ name: 'scores' })
 export class UserScoreEntity {
@@ -9,4 +15,7 @@ export class UserScoreEntity {
   @OneToOne(() => UserEntity, { nullable: false })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'name' })
   user: UserEntity;
+
+  @Column('int', { default: 0, nullable: false })
+  score: number;
 }
