@@ -4,21 +4,32 @@ import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'node:crypto';
 import * as util from 'node:util';
 import { AuthenticationResponse } from './dtos';
+import { Repository } from 'typeorm';
+import { UserEntity } from './entities/user.entity';
+import { ConfigService } from '@nestjs/config';
+import { ConfigProps } from 'src/configs';
+import { InjectRepository } from '@nestjs/typeorm';
+
+export const defaultRoles = ['user'];
 
 @Injectable()
 export class AuthService {
-  private readonly store: User[] = [];
-  private readonly defaultRoles = ['user'];
-
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+    @InjectRepository(UserEntity)
+    private readonly repository: Repository<UserEntity>,
+  ) {}
 
   async registerUser(
     data: Pick<User, 'name' | 'password'>,
   ): Promise<AuthenticationResponse> {
     const jwtToken = await this.jwtService.signAsync({
-      username: data.name,
-      roles: this.defaultRoles, // default roles
+      name: data.name,
+      roles: defaultRoles,
     });
+
+    const authConfig = this.configService.get<ConfigProps['auth']>('auth');
 
     const hash = util.promisify<
       crypto.BinaryLike,
@@ -27,12 +38,12 @@ export class AuthService {
       Buffer
     >(crypto.scrypt);
 
-    const passwordHash = await hash(data.password, 'aaa', 32);
+    const passwordHash = await hash(data.password, authConfig.secret, 32);
 
-    this.store.push({
+    this.repository.save({
       name: data.name,
       password: passwordHash.toString('base64'),
-      roles: this.defaultRoles,
+      roles: defaultRoles,
     });
 
     return { name: data.name, accessToken: jwtToken };
@@ -41,7 +52,11 @@ export class AuthService {
   async loginUser(
     data: Pick<User, 'name' | 'password'>,
   ): Promise<AuthenticationResponse> {
-    const [user] = this.store.filter((u) => u.name === data.name);
+    const user = this.repository.findOne({
+      where: {
+        name: data.name,
+      },
+    });
 
     if (!user) {
       throw new BadRequestException();
@@ -54,7 +69,8 @@ export class AuthService {
       Buffer
     >(crypto.scrypt);
 
-    const passwordHash = await hash(data.password, 'aaa', 32);
+    const authConfig = this.configService.get<ConfigProps['auth']>('auth');
+    const passwordHash = await hash(data.password, authConfig.secret, 32);
 
     const passwordMatch = passwordHash.toString('base64') === data.password;
     if (!passwordMatch) {
@@ -62,8 +78,8 @@ export class AuthService {
     }
 
     const jwtToken = await this.jwtService.signAsync({
-      username: data.name,
-      roles: this.defaultRoles, // default roles
+      name: data.name,
+      roles: defaultRoles,
     });
 
     return { name: data.name, accessToken: jwtToken };
