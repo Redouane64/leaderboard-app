@@ -1,18 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { UserScoreEntity } from './entities/user-score.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LeaderboardResponse } from './dtos';
 import { UserScore } from './interfaces';
+import { AuthenticatedUser } from 'src/auth/interfaces';
+import { UserEntity } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class ScoreService {
   constructor(
-    @InjectRepository(UserScoreEntity)
-    private readonly repository: Repository<UserScoreEntity>,
+    @InjectRepository(UserEntity)
+    private readonly repository: Repository<UserEntity>,
   ) {}
 
-  async createScore(data: UserScore): Promise<UserScore> {
+  async createScore(data: UserScore, user: AuthenticatedUser): Promise<UserScore> {
+    if (!user.roles.includes('admin') && user.name !== data.name) {
+      throw new BadRequestException('You cannot add score to other players.')
+    }
+
     const entity = await this.repository.save({
       user: {
         name: data.name,
@@ -29,15 +34,12 @@ export class ScoreService {
   async getLeaderboard(): Promise<LeaderboardResponse> {
     const entities = await this.repository.find({
       select: ['score'],
-      relations: {
-        user: true,
-      },
       order: { score: 'DESC' },
       take: 10,
     });
 
     return {
-      data: entities.map((e) => ({ name: e.user.name, score: e.score })),
+      data: entities.map((e) => ({ name: e.name, score: e.score })),
     };
   }
 }

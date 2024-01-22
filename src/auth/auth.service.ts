@@ -40,9 +40,9 @@ export class AuthService {
 
     const passwordHash = await hash(data.password, authConfig.secret, 32);
 
-    this.repository.save({
+    await this.repository.save({
       name: data.name,
-      password: passwordHash.toString('base64'),
+      passwordHash: passwordHash.toString('base64'),
       roles: defaultRoles,
     });
 
@@ -52,7 +52,7 @@ export class AuthService {
   async loginUser(
     data: Pick<User, 'name' | 'password'>,
   ): Promise<AuthenticationResponse> {
-    const user = this.repository.findOne({
+    const user = await this.repository.findOne({
       where: {
         name: data.name,
       },
@@ -72,7 +72,7 @@ export class AuthService {
     const authConfig = this.configService.get<ConfigProps['auth']>('auth');
     const passwordHash = await hash(data.password, authConfig.secret, 32);
 
-    const passwordMatch = passwordHash.toString('base64') === data.password;
+    const passwordMatch = passwordHash.toString('base64') === user.passwordHash;
     if (!passwordMatch) {
       throw new BadRequestException();
     }

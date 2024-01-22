@@ -4,6 +4,7 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from './configs/app.config';
 import dataSource from './database/data-source';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   await dataSource.initialize();
@@ -17,6 +18,16 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const appConfig = configService.get<AppConfig>('app');
+
+  const config = new DocumentBuilder()
+    .setTitle('Leaderboard API')
+    .setDescription('Players leaderboard API')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('swagger', app, document);
 
   await app.listen(appConfig.port);
   const url = await app.getUrl();

@@ -1,10 +1,14 @@
-import { Column, Entity, Index, PrimaryColumn } from 'typeorm';
-import { AuthService, defaultRoles } from '../auth.service';
+import { Column, Entity, Index, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { defaultRoles } from '../auth.service';
+import { UserScore } from '../../score/interfaces';
 
 @Entity({ name: 'users' })
 @Index(['name'], { unique: true })
 export class UserEntity {
-  @PrimaryColumn('text', { name: 'name', nullable: false })
+  @PrimaryGeneratedColumn('increment')
+  id: number;
+
+  @Column('text', { name: 'name', nullable: false })
   name: string;
 
   @Column('text', { name: 'password_hash', nullable: false })
@@ -16,4 +20,7 @@ export class UserEntity {
     default: defaultRoles,
   })
   roles: string[];
+
+  @Column('int', { default: 0, nullable: false })
+  score: number;
 }
