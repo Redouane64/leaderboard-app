@@ -1,0 +1,40 @@
+version: '3'
+
+networks:
+  leaderboard-network:
+    name: Leaderboard.Network
+    driver: bridge
+
+services:
+  postgres:
+    container_name: Leaderboard.Database
+    image: postgres:13-alpine
+    # extra_hosts: [ 'host.docker.internal:host-gateway' ]
+    restart: always
+    environment:
+      POSTGRES_DB: Leaderboard
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      # any intial sql to run can be added into ./config/init.sql
+      # - ./config/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      # enable this line if you want to save database data in case of
+      # database container is dropped
+      - ./local-data:/var/lib/postgresql/data
+    ports:
+      - 6432:5432
+    networks:
+      - leaderboard-network
+
+  web:
+    container_name: Leadboard.Api
+    build: .
+    restart: always
+    env_file:
+      - .env.docker
+    ports:
+      - 3000:3000
+    networks:
+      - leaderboard-network
+    depends_on:
+      - postgres

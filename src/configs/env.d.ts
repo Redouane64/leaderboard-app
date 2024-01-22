@@ -12,5 +12,8 @@ declare namespace NodeJS {
     // throttler
     API_RATE_LIMIT: string;
     API_RATE_LIMIT_TTL: string;
+
+    // db
+    DATABASE_URL: string;
   }
 }
