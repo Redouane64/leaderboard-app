@@ -1,13 +1,23 @@
-import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { ScoreService } from './score.service';
 import { CreateScoreDto } from './dtos';
+import { AuthGuard } from 'src/auth/guards/auth.guard';
 
 @Controller('score')
 export class ScoreController {
   constructor(private readonly scoreService: ScoreService) {}
 
   @Post()
+  @UseGuards(AuthGuard)
   async scores(@Body() data: CreateScoreDto, @Res() response: Response) {
     const score = await this.scoreService.createScore(data);
     return response.status(HttpStatus.OK).send(score);
