@@ -8,12 +8,12 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { ConfigProps } from '../../configs';
-import { AuthenticatedUser } from '../interfaces';
+import { User } from '../interfaces';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
-    private jwtService: JwtService,
+    private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -25,7 +25,7 @@ export class AuthGuard implements CanActivate {
     }
     try {
       const authConfig = this.configService.get<ConfigProps['auth']>('auth');
-      const payload = await this.jwtService.verifyAsync<AuthenticatedUser>(
+      const payload = await this.jwtService.verifyAsync<User>(
         token,
         {
           secret: authConfig.secret,

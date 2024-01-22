@@ -3,8 +3,8 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LeaderboardResponse } from './dtos';
 import { UserScore } from './interfaces';
-import { AuthenticatedUser } from 'src/auth/interfaces';
-import { UserEntity } from 'src/auth/entities/user.entity';
+import { UserEntity } from '../auth/entities/user.entity';
+import { User } from 'src/auth/interfaces';
 
 @Injectable()
 export class ScoreService {
@@ -13,27 +13,21 @@ export class ScoreService {
     private readonly repository: Repository<UserEntity>,
   ) {}
 
-  async createScore(data: UserScore, user: AuthenticatedUser): Promise<UserScore> {
+  async createScore(data: UserScore, user: User): Promise<void> {
     if (!user.roles.includes('admin') && user.name !== data.name) {
       throw new BadRequestException('You cannot add score to other players.')
     }
 
-    const entity = await this.repository.save({
-      user: {
-        name: data.name,
-      },
+    const entity = await this.repository.update({
+      id: user.id
+    }, {
       score: data.score,
-    });
-
-    return {
-      name: data.name,
-      score: entity.score,
-    };
+    })
   }
 
   async getLeaderboard(): Promise<LeaderboardResponse> {
     const entities = await this.repository.find({
-      select: ['score'],
+      select: ['name', 'score'],
       order: { score: 'DESC' },
       take: 10,
     });

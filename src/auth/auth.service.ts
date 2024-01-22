@@ -3,11 +3,11 @@ import { User } from './interfaces';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'node:crypto';
 import * as util from 'node:util';
-import { AuthenticationResponse } from './dtos';
+import { AuthenticationResponse, LoginDto, RegisterDto } from './dtos';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
 import { ConfigService } from '@nestjs/config';
-import { ConfigProps } from 'src/configs';
+import { ConfigProps } from '../configs';
 import { InjectRepository } from '@nestjs/typeorm';
 
 export const defaultRoles = ['user'];
@@ -22,13 +22,8 @@ export class AuthService {
   ) {}
 
   async registerUser(
-    data: Pick<User, 'name' | 'password'>,
+    data: RegisterDto,
   ): Promise<AuthenticationResponse> {
-    const jwtToken = await this.jwtService.signAsync({
-      name: data.name,
-      roles: defaultRoles,
-    });
-
     const authConfig = this.configService.get<ConfigProps['auth']>('auth');
 
     const hash = util.promisify<
@@ -40,17 +35,24 @@ export class AuthService {
 
     const passwordHash = await hash(data.password, authConfig.secret, 32);
 
-    await this.repository.save({
+    const entity = await this.repository.save({
       name: data.name,
       passwordHash: passwordHash.toString('base64'),
       roles: defaultRoles,
     });
 
+    const jwtToken = await this.jwtService.signAsync({
+      id: entity.id,
+      name: data.name,
+      roles: defaultRoles,
+    });
+
+
     return { name: data.name, accessToken: jwtToken };
   }
 
   async loginUser(
-    data: Pick<User, 'name' | 'password'>,
+    data: LoginDto,
   ): Promise<AuthenticationResponse> {
     const user = await this.repository.findOne({
       where: {
@@ -78,6 +80,7 @@ export class AuthService {
     }
 
     const jwtToken = await this.jwtService.signAsync({
+      id: user.id,
       name: data.name,
       roles: defaultRoles,
     });

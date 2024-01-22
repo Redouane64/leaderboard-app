@@ -11,10 +11,10 @@ import {
 import { Response } from 'express';
 import { ScoreService } from './score.service';
 import { CreateScoreDto, LeaderboardResponse } from './dtos';
-import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { AuthGuard } from '../auth/guards/auth.guard';
 import { CurrentUser } from './decorators';
-import { AuthenticatedUser } from 'src/auth/interfaces';
 import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { User } from 'src/auth/interfaces';
 
 @ApiTags('Scores')
 @Controller('score')
@@ -23,15 +23,15 @@ export class ScoreController {
 
   @Post()
   @UseGuards(AuthGuard)
-  async scores(@Body() data: CreateScoreDto, @CurrentUser() user: AuthenticatedUser, @Res() response: Response) {
-    const score = await this.scoreService.createScore(data, user);
-    return response.status(HttpStatus.OK).send(score);
+  async scores(@Body() data: CreateScoreDto, @CurrentUser() user: User, @Res() response: Response) {
+    await this.scoreService.createScore(data, user);
+    return response.sendStatus(HttpStatus.CREATED);
   }
 
   @Get('leaderboard')
   @ApiOkResponse({ type: LeaderboardResponse })
   async leaderboard(@Res() response: Response) {
     const leaderboard = await this.scoreService.getLeaderboard();
-    return response.sendStatus(HttpStatus.OK).send(leaderboard);
+    return response.status(HttpStatus.OK).send(leaderboard);
   }
 }

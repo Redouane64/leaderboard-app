@@ -15,7 +15,7 @@ export class RegisterDto implements Pick<User, 'name'> {
   password: string;
 }
 
-export class LoginDto implements Pick<RegisterDto, 'name' | 'password'> {
+export class LoginDto implements Pick<RegisterDto, 'name'> {
   @ApiProperty()
   @IsNotEmpty()
   name: string;

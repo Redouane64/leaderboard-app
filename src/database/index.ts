@@ -3,8 +3,8 @@ import {
   TypeOrmModuleAsyncOptions,
   TypeOrmModuleOptions,
 } from '@nestjs/typeorm';
-import { UserEntity } from 'src/auth/entities/user.entity';
-import { ConfigProps } from 'src/configs';
+import { UserEntity } from '../auth/entities/user.entity';
+import { ConfigProps } from '../configs';
 
 export const typeOrmModuleOptions: TypeOrmModuleAsyncOptions = {
   inject: [ConfigService],

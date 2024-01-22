@@ -1,10 +1,9 @@
 import { Column, Entity, Index, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
-import { defaultRoles } from '../auth.service';
-import { UserScore } from '../../score/interfaces';
+import { User } from '../interfaces';
 
 @Entity({ name: 'users' })
 @Index(['name'], { unique: true })
-export class UserEntity {
+export class UserEntity implements User {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
@@ -17,7 +16,7 @@ export class UserEntity {
   @Column('jsonb', {
     name: 'roles',
     nullable: false,
-    default: defaultRoles,
+    default: ['user']
   })
   roles: string[];
 
