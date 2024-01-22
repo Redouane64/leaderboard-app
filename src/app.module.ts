@@ -11,9 +11,12 @@ import { apiThrottlerOptions } from './configs/api-throttler.options';
 import { APP_GUARD } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmModuleOptions } from './database';
+import { LoggerModule } from 'nestjs-pino';
+import { loggerModuleOptions } from './logger';
 
 @Module({
   imports: [
+    LoggerModule.forRootAsync(loggerModuleOptions),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
