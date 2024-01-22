@@ -15,6 +15,7 @@ import { AuthGuard } from '../auth/guards/auth.guard';
 import { CurrentUser } from './decorators';
 import { ApiBadRequestResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/auth/interfaces';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('Scores')
 @Controller('score')
@@ -31,6 +32,7 @@ export class ScoreController {
   }
 
   @Get('leaderboard')
+  @SkipThrottle()
   @ApiOperation({operationId: 'leaderboard', summary: `Get top 10 players`})
   @ApiOkResponse({ type: LeaderboardResponse })
   async leaderboard(@Res() response: Response) {

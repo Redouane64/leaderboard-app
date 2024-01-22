@@ -3,9 +3,11 @@ import { Response } from 'express';
 import { LoginDto, RegisterDto } from './dtos';
 import { AuthService } from './auth.service';
 import { ApiBadRequestResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @ApiTags('Auth')
 @Controller('auth')
+@SkipThrottle()
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

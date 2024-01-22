@@ -26,11 +26,6 @@ import { typeOrmModuleOptions } from './database';
     ScoreModule,
   ],
   controllers: [AppController],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-  ],
+  providers: [],
 })
 export class AppModule {}
