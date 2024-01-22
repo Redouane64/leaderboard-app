@@ -8,7 +8,7 @@ WORKDIR /app
 COPY --chown=node:node package*.json ./
 # Install app dependencies
 RUN npm i -g @nestjs/cli
-RUN npm i
+RUN npm ci
 # Bundle app source
 COPY . .
 # Creates a "dist" folder with the production build
