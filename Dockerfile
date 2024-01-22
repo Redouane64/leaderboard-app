@@ -1,7 +1,5 @@
 # Base image
-FROM node:18-bookworm-slim AS build
-
-RUN apt-get update && apt-get install -y --no-install-recommends dumb-init
+FROM node:20-alpine AS build
 
 # Create app directory
 WORKDIR /app
@@ -9,15 +7,15 @@ WORKDIR /app
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 COPY --chown=node:node package*.json ./
 # Install app dependencies
-RUN yarn global add @nestjs/cli
-RUN yarn install --frozen-lockfile --production
+RUN npm i -g @nestjs/cli
+RUN npm i
 # Bundle app source
 COPY . .
 # Creates a "dist" folder with the production build
-RUN yarn run build
+RUN npm run build
 
 # build production artifacts stage
-FROM node:14-alpine AS deploy
+FROM node:20-alpine AS deploy
 RUN apk add dumb-init
 USER node
 
