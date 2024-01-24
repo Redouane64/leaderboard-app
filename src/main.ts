@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { AppConfig } from './configs/app.config';
 import dataSource from './database/data-source';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { LoggerErrorInterceptor, Logger as PinoLogger } from 'nestjs-pino';
+import { LoggerErrorInterceptor } from 'nestjs-pino';
 
 async function bootstrap() {
   await dataSource.initialize();
@@ -22,8 +22,6 @@ async function bootstrap() {
   );
   app.enableCors();
   app.useGlobalInterceptors(new LoggerErrorInterceptor());
-  app.useLogger(app.get(PinoLogger));
-  app.flushLogs();
 
   const configService = app.get(ConfigService);
   const appConfig = configService.get<AppConfig>('app');

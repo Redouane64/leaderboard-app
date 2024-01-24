@@ -1,20 +1,15 @@
 import { randomUUID } from 'crypto';
 import { LoggerModuleAsyncParams, Params } from 'nestjs-pino';
 import pino from 'pino';
-import * as pretty from 'pino-pretty';
 
 export const loggerModuleOptions: LoggerModuleAsyncParams = {
   inject: [],
   useFactory: (): Params => {
     const targets: pino.TransportTargetOptions<Record<string, any>>[] = [
       {
-        target: 'pino-pretty',
-        level: 'debug',
+        target: 'pino/file',
         options: {
-          colorize: true,
-          ignore: 'pid,hostname',
-          destination: 'log.txt',
-          sync: false,
+          destination: `./app.log`,
         },
       },
     ];
@@ -26,6 +21,7 @@ export const loggerModuleOptions: LoggerModuleAsyncParams = {
           targets,
         },
         genReqId: () => randomUUID(),
+        redact: ['req.headers.authorization'],
       },
     };
   },
