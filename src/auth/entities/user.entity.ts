@@ -1,4 +1,4 @@
-import { Column, Entity, Index, OneToOne, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../interfaces';
 
 @Entity({ name: 'users' })
@@ -16,7 +16,7 @@ export class UserEntity implements User {
   @Column('jsonb', {
     name: 'roles',
     nullable: false,
-    default: ['user']
+    default: ['user'],
   })
   roles: string[];
 

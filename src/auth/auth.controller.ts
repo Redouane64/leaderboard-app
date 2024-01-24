@@ -12,7 +12,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @ApiOperation({operationId: 'register', summary: `Create player account`})
+  @ApiOperation({ operationId: 'register', summary: `Create player account` })
   @ApiBadRequestResponse()
   async register(@Body() data: RegisterDto, @Res() response: Response) {
     const authResponse = await this.authService.registerUser(data);
@@ -20,7 +20,7 @@ export class AuthController {
   }
 
   @Post('login')
-  @ApiOperation({operationId: 'login', summary: `Login to player account`})
+  @ApiOperation({ operationId: 'login', summary: `Login to player account` })
   @ApiBadRequestResponse()
   async login(@Body() data: LoginDto, @Res() response: Response) {
     const authResponse = await this.authService.loginUser(data);

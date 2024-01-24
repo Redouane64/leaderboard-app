@@ -9,9 +9,12 @@ import { APP_GUARD } from '@nestjs/core';
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity])],
   controllers: [ScoreController],
-  providers: [ScoreService, {
-    provide: APP_GUARD,
-    useClass: ThrottlerGuard,
-  }],
+  providers: [
+    ScoreService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class ScoreModule {}

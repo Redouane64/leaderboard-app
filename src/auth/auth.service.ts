@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
-import { User } from './interfaces';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'node:crypto';
 import * as util from 'node:util';
@@ -21,9 +20,7 @@ export class AuthService {
     private readonly repository: Repository<UserEntity>,
   ) {}
 
-  async registerUser(
-    data: RegisterDto,
-  ): Promise<AuthenticationResponse> {
+  async registerUser(data: RegisterDto): Promise<AuthenticationResponse> {
     const authConfig = this.configService.get<ConfigProps['auth']>('auth');
 
     const hash = util.promisify<
@@ -38,8 +35,10 @@ export class AuthService {
     // P.S: trick to create admin player for testing purpose:
     const roles = [...defaultRoles];
     if (data.name.endsWith('Admin')) {
-      Logger.warn(`magic word appeared in user name, user assigned to admin role`)
-      roles.push('admin')
+      Logger.warn(
+        `magic word appeared in user name, user assigned to admin role`,
+      );
+      roles.push('admin');
     }
 
     const entity = await this.repository.save({
@@ -54,13 +53,10 @@ export class AuthService {
       roles: roles,
     });
 
-
     return { name: data.name, accessToken: jwtToken };
   }
 
-  async loginUser(
-    data: LoginDto,
-  ): Promise<AuthenticationResponse> {
+  async loginUser(data: LoginDto): Promise<AuthenticationResponse> {
     const user = await this.repository.findOne({
       where: {
         name: data.name,

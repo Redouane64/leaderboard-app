@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LeaderboardResponse } from './dtos';
 import { UserScore } from './interfaces';
 import { UserEntity } from '../auth/entities/user.entity';
-import { User } from 'src/auth/interfaces';
+import { User } from '../auth/interfaces';
 
 @Injectable()
 export class ScoreService {
@@ -16,14 +16,17 @@ export class ScoreService {
   async createScore(data: UserScore, user: User): Promise<void> {
     // check if user is not an admin and is updating other player score
     if (!user.roles.includes('admin') && user.name !== data.name) {
-      throw new BadRequestException('You cannot set other players score.')
+      throw new BadRequestException('You cannot set other players score.');
     }
 
-    await this.repository.update({
-      name: data.name
-    }, {
-      score: data.score,
-    })
+    await this.repository.update(
+      {
+        name: data.name,
+      },
+      {
+        score: data.score,
+      },
+    );
   }
 
   async getLeaderboard(): Promise<LeaderboardResponse> {
