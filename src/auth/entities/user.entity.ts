@@ -2,21 +2,18 @@ import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../interfaces';
 
 @Entity({ name: 'users' })
-@Index(['name'], { unique: true })
+@Index(['username'], { unique: true })
 export class UserEntity implements User {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column('text', { name: 'name', nullable: false })
-  name: string;
-
-  @Column('text', { name: 'password_hash', nullable: false })
-  passwordHash: string;
+  @Column('text', { name: 'username', nullable: false })
+  username: string;
 
   @Column('jsonb', {
     name: 'roles',
     nullable: false,
-    default: ['user'],
+    default: ['player'],
   })
   roles: string[];
 

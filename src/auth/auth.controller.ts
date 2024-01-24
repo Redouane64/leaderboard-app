@@ -1,9 +1,9 @@
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common';
+import { Controller, HttpStatus, Post, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { LoginDto, RegisterDto } from './dtos';
 import { AuthService } from './auth.service';
 import { ApiBadRequestResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
+import { UsernameValidationPipe } from './validation/username-validation.pipe';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -11,19 +11,17 @@ import { SkipThrottle } from '@nestjs/throttler';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('register')
-  @ApiOperation({ operationId: 'register', summary: `Create player account` })
+  @Post()
+  @ApiOperation({
+    operationId: 'authenticate',
+    summary: `Create player or login`,
+  })
   @ApiBadRequestResponse()
-  async register(@Body() data: RegisterDto, @Res() response: Response) {
-    const authResponse = await this.authService.registerUser(data);
-    return response.status(HttpStatus.OK).send(authResponse);
-  }
-
-  @Post('login')
-  @ApiOperation({ operationId: 'login', summary: `Login to player account` })
-  @ApiBadRequestResponse()
-  async login(@Body() data: LoginDto, @Res() response: Response) {
-    const authResponse = await this.authService.loginUser(data);
-    return response.status(HttpStatus.OK).send(authResponse);
+  async authenticate(
+    @Query('username', UsernameValidationPipe) username: string,
+    @Res() response: Response,
+  ) {
+    const player = await this.authService.authenticate(username);
+    return response.status(HttpStatus.OK).send(player);
   }
 }

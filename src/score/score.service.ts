@@ -1,8 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LeaderboardResponse } from './dtos';
-import { UserScore } from './interfaces';
+import { Score } from './interfaces';
 import { UserEntity } from '../auth/entities/user.entity';
 import { User } from '../auth/interfaces';
 
@@ -13,15 +12,19 @@ export class ScoreService {
     private readonly repository: Repository<UserEntity>,
   ) {}
 
-  async createScore(data: UserScore, user: User): Promise<void> {
+  async submitScore(data: Score, user: User): Promise<void> {
     // check if user is not an admin and is updating other player score
-    if (!user.roles.includes('admin') && user.name !== data.name) {
+    if (!user.roles.includes('admin') && user.username !== data.username) {
       throw new BadRequestException('You cannot set other players score.');
+    }
+
+    if (!data.username) {
+      data.username = user.username;
     }
 
     await this.repository.update(
       {
-        name: data.name,
+        username: data.username,
       },
       {
         score: data.score,
@@ -29,15 +32,13 @@ export class ScoreService {
     );
   }
 
-  async getLeaderboard(): Promise<LeaderboardResponse> {
+  async leaderboard() {
     const entities = await this.repository.find({
-      select: ['name', 'score'],
+      select: ['username', 'score'],
       order: { score: 'DESC' },
       take: 10,
     });
 
-    return {
-      data: entities.map((e) => ({ name: e.name, score: e.score })),
-    };
+    return entities.map((e) => ({ username: e.username, score: e.score }));
   }
 }

@@ -1,18 +1,10 @@
-import { IsNotEmpty, Min } from 'class-validator';
-import { UserScore } from '../interfaces';
+import { Score } from '../interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class CreateScoreDto implements UserScore {
+export class ScoreDto implements Score {
   @ApiProperty()
-  @IsNotEmpty()
-  name: string;
+  username: string;
 
   @ApiProperty()
-  @Min(0)
   score: number;
-}
-
-export class LeaderboardResponse {
-  @ApiProperty({ type: [CreateScoreDto] })
-  data: UserScore[];
 }
