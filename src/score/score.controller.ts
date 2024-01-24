@@ -38,7 +38,7 @@ export class ScoreController {
     @Res() response: Response,
   ) {
     await this.scoreService.submitScore({ username, score }, user);
-    return response.sendStatus(HttpStatus.CREATED);
+    return response.status(HttpStatus.CREATED).send();
   }
 
   @Get('leaderboard')
